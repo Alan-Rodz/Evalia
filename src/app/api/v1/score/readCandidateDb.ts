@@ -36,7 +36,7 @@ export const readCandidateDb = (): FullCandidate[] => {
     : null,
    educations: educations.split(SPLIT_CHARACTER).map((e) => normalize(e)).filter((e) => !isBlankString(e)),
    experiences: experiences.split(SPLIT_CHARACTER).map((e) => normalize(e)).filter((e) => !isBlankString(e)),
-   id: normalize(name),
+   id: normalize(name.split(' ')[1] ?? ''),
    job: {
     department: normalize(job_department),
     headline: normalize(headline),
@@ -45,6 +45,7 @@ export const readCandidateDb = (): FullCandidate[] => {
     location: normalize(job_location),
    },
    job_id: normalize(job_title),
+   name: normalize(name),
    qa: [
     { question: normalize(q1), answer: normalize(a1) },
     { question: normalize(q2), answer: normalize(a2) },

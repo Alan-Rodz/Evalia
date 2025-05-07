@@ -10,22 +10,22 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # == Env ==========================================================================
-openai.api_key = os.getenv("OPENAI_API_KEY")
+openai.api_key = os.getenv("LLM_API_KEY")
 if not openai.api_key:
-    logger.error("Missing OPENAI_API_KEY environment variable.")
-    raise RuntimeError("Missing OPENAI_API_KEY environment variable.")
+    logger.error("Missing LLM_API_KEY environment variable.")
+    raise RuntimeError("Missing LLM_API_KEY environment variable.")
 
 # == Constant =====================================================================
 FEW_SHOT_EXAMPLES = [
     {
-        "id": "123",
-        "name": "Alice Smith",
+        "id": "3000",
+        "name": "Candidate 3000",
         "score": 85,
         "highlights": ["Relevant experience in SaaS sales", "Fluent in Spanish"],
     },
     {
-        "id": "456",
-        "name": "Bob Johnson",
+        "id": "3001",
+        "name": "Candidate 3001",
         "score": 62,
         "highlights": ["Some CRM exposure", "Limited B2B experience"],
     },
@@ -40,7 +40,7 @@ SYSTEM_INSTRUCTION = (
     "Do not include any other text or explanation."
     "Example answer with raw text:"
     f"{json.dumps(FEW_SHOT_EXAMPLES, indent=2)}"
-    "Do not include the examples in your answer."
+    "DO NOT include the examples (Candidate 3001 or Candidate 3000) in your answer."
 )
 
 
@@ -122,18 +122,24 @@ def validate_candidate(candidate: Dict) -> bool:
 async def parse_llm_response(response_text: str) -> List[Dict]:
     logger.info(f"Parsing LLM response...")
     if response_text.startswith("```json") and response_text.endswith("```"):
-        logger.info("Response starts with '```json' and ends with '```'. Removing markers.")
+        logger.info(
+            "Response starts with '```json' and ends with '```'. Removing markers."
+        )
         response_text = response_text[7:-3].strip()
     try:
         data = json.loads(response_text)
     except json.JSONDecodeError:
-        logger.warning("Initial JSON parse failed. Attempting to truncate response and re-parse. This is the malformed response_text:")
+        logger.warning(
+            "Initial JSON parse failed. Attempting to truncate response and re-parse. This is the malformed response_text:"
+        )
         logger.warning(response_text)
 
     try:
         data = json.loads(response_text)
     except json.JSONDecodeError:
-        logger.warning("Initial JSON parse failed. Attempting to handle malformed response.")
+        logger.warning(
+            "Initial JSON parse failed. Attempting to handle malformed response."
+        )
         fix_prompt = (
             "The following response is likely malformed JSON. Please review the response and correct the JSON. "
             "Then return the corrected response in valid JSON format without any additional explanation.\n\n"
@@ -141,7 +147,10 @@ async def parse_llm_response(response_text: str) -> List[Dict]:
             "Corrected response (in JSON format):"
         )
         messages = [
-            {"role": "system","content": "You are a helpful assistant. Correct the following malformed JSON.",},
+            {
+                "role": "system",
+                "content": "You are a helpful assistant. Correct the following malformed JSON.",
+            },
             {"role": "user", "content": fix_prompt},
         ]
         corrected_response = await call_llm_with_retries(messages)

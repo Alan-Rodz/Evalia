@@ -14,6 +14,7 @@ export type Candidate = {
  experiences: string[];
  id: string;
  job_id: string;
+ name: string;
  qa: QuestionAnswer[];
  skills: string[];
  source: string;
