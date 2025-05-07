@@ -93,12 +93,11 @@ const deduplicate = (candidates: FullCandidate[]): FullCandidate[] => {
   if (!seen.has(key)) {
    seen.add(key);
    unique.push(candidate);
-  }
+  } /* else -- already seen */
  }
 
  return unique;
 };
-
 
 const normalize = (str: string) => {
  const normalized = str
