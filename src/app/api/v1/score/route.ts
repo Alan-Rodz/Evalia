@@ -17,6 +17,7 @@ import { readCandidateDb } from './readCandidateDb';
 // == Type ========================================================================
 type GoogleCloudPostScoreData = PostScoreData & {
  candidates: {
+  id: FullCandidate['id'];
   educations: FullCandidate['educations'];
   experiences: FullCandidate['experiences'];
   qa: FullCandidate['qa'];
@@ -61,6 +62,7 @@ export const POST = async (req: NextRequest) => RequestHandler.handleRequestOnSe
     candidates: fullCandidates.map((candidate) => ({
      educations: candidate.educations,
      experiences: candidate.experiences,
+     id: candidate.id,
      qa: candidate.qa,
      skills: candidate.skills,
      summary: candidate.summary,
